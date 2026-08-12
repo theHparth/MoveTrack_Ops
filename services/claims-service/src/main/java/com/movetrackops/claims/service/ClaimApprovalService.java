@@ -54,4 +54,9 @@ public class ClaimApprovalService {
         claim.setStatus(approved ? ClaimStatus.APPROVED : ClaimStatus.REJECTED);
         return claimRepository.save(claim);
     }
+
+    public Claim getClaim(Long claimId) {
+        return claimRepository.findById(claimId)
+                .orElseThrow(() -> new IllegalArgumentException("Claim not found: " + claimId));
+    }
 }
