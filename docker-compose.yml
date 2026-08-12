@@ -11,7 +11,18 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./infra/postgres-init:/docker-entrypoint-initdb.d
-  
+
+  claims-service:
+    build: ./services/claims-service
+    container_name: movetrack-claims-service
+    ports:
+      - "8081:8081"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/claims_db
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
+    depends_on:
+      - postgres
 
 volumes:
   postgres_data:
