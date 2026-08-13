@@ -24,5 +24,17 @@ services:
     depends_on:
       - postgres
 
+  move-entitlement-service:
+    build: ./services/move-entitlement-service
+    container_name: movetrack-move-entitlement-service
+    ports:
+      - "8082:8082"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/move_entitlement_db
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
+    depends_on:
+      - postgres
+
 volumes:
   postgres_data:
