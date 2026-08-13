@@ -35,6 +35,12 @@ services:
       SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
     depends_on:
       - postgres
+  
+  dashboard:
+    build: ./frontend/dashboard
+    container_name: movetrack-dashboard
+    ports:
+      - "3000:80"
 
 volumes:
   postgres_data:
