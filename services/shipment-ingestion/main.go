@@ -8,6 +8,15 @@ import (
 	"net/http"
 )
 
+import "errors"
+
+func validatePing(p ShipmentPing) error {
+	if p.DeviceID == "" {
+		return errors.New("device_id is required")
+	}
+	return nil
+}
+
 type ShipmentPing struct {
 	DeviceID  string  `json:"device_id"`
 	Latitude  float64 `json:"latitude"`
