@@ -23,5 +23,10 @@ pipeline {
                 sh 'cp /var/jenkins_home/zap-report.html "$WORKSPACE"/zap-report.html || true'
             }
         }
+        stage('Archive Reports') {
+            steps {
+                archiveArtifacts artifacts: '*-report.html', allowEmptyArchive: true
+            }
+        }
     }
 }
