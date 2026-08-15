@@ -67,6 +67,7 @@ services:
 
   jenkins:
     build: ./infra/jenkins
+    user: root
     ports:
       - "8080:8080"
     volumes:
