@@ -65,6 +65,13 @@ services:
     depends_on:
       - postgres
 
+  jenkins:
+    image: jenkins/jenkins:lts-jdk17
+    ports:
+      - "8080:8080"
+    volumes:
+      - jenkins_home:/var/jenkins_home
+
 volumes:
   postgres_data:
-
+  jenkins_home:
