@@ -35,7 +35,7 @@ services:
       SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
     depends_on:
       - postgres
-  
+
   dashboard:
     build: ./frontend/dashboard
     container_name: movetrack-dashboard
@@ -55,6 +55,16 @@ services:
       REDIS_HOST: redis
     depends_on:
       - redis
-      
+
+  shipment-ingestion:
+    build: ./services/shipment-ingestion
+    ports:
+      - "8090:8090"
+    environment:
+      DATABASE_URL: postgres://movetrack:localdevpassword@postgres:5432/shipment_ingestion?sslmode=disable
+    depends_on:
+      - postgres
+
 volumes:
   postgres_data:
+

@@ -3,12 +3,13 @@ package main
 import (
 	"database/sql"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"log"
 	"net/http"
 )
 
-import "errors"
+
 
 func validatePing(p ShipmentPing) error {
 	if p.DeviceID == "" {
@@ -32,6 +33,11 @@ func handleIngest(w http.ResponseWriter, r *http.Request) {
 	var p ShipmentPing
 	if err := json.NewDecoder(r.Body).Decode(&p); err != nil {
 		http.Error(w, "invalid JSON", http.StatusBadRequest)
+		return
+	}
+
+	if err := validatePing(p); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
