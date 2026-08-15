@@ -1,11 +1,11 @@
 package main
 
 import (
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
-	"sync"
 )
 
 type ShipmentPing struct {
@@ -15,10 +15,9 @@ type ShipmentPing struct {
 	Timestamp string  `json:"timestamp"`
 }
 
-var (
-	pings   []ShipmentPing
-	pingsMu sync.Mutex
-)
+
+
+var db *sql.DB
 
 func handleIngest(w http.ResponseWriter, r *http.Request) {
 	var p ShipmentPing
@@ -27,9 +26,10 @@ func handleIngest(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	pingsMu.Lock()
-	pings = append(pings, p)
-	pingsMu.Unlock()
+	if err := insertPing(db, p); err != nil {
+		http.Error(w, "failed to save ping", http.StatusInternalServerError)
+		return
+	}
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
@@ -37,14 +37,21 @@ func handleIngest(w http.ResponseWriter, r *http.Request) {
 }
 
 func handleListIngest(w http.ResponseWriter, r *http.Request) {
-	pingsMu.Lock()
-	defer pingsMu.Unlock()
+	result, err := listPings(db)
+	if err != nil {
+		http.Error(w, "failed to list pings", http.StatusInternalServerError)
+		return
+	}
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(pings)
+	json.NewEncoder(w).Encode(result)
 }
 
 func main() {
+	db = connectDB()
+	defer db.Close()
+	ensureSchema(db)
+
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /health", func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintln(w, `{"status":"ok"}`)
