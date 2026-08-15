@@ -22,5 +22,10 @@ pipeline {
                 sh 'docker run --rm --network movetrack_ops_default -t zaproxy/zap-stable zap-baseline.py -t http://dashboard:80 -r zap-report.html || true'
             }
         }
+        stage('Archive Reports') {
+            steps {
+                archiveArtifacts artifacts: '*-report.html', allowEmptyArchive: true
+            }
+        }
     }
 }
