@@ -42,5 +42,19 @@ services:
     ports:
       - "3000:80"
 
+  redis:
+    image: redis:alpine
+    ports:
+      - "6379:6379"
+
+  claims-triage-ml:
+    build: ./services/claims-triage-ml
+    ports:
+      - "8000:8000"
+    environment:
+      REDIS_HOST: redis
+    depends_on:
+      - redis
+      
 volumes:
   postgres_data:
