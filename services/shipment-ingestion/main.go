@@ -36,12 +36,21 @@ func handleIngest(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(p)
 }
 
+func handleListIngest(w http.ResponseWriter, r *http.Request) {
+	pingsMu.Lock()
+	defer pingsMu.Unlock()
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(pings)
+}
+
 func main() {
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /health", func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintln(w, `{"status":"ok"}`)
 	})
 	mux.HandleFunc("POST /ingest", handleIngest)
+	mux.HandleFunc("GET /ingest", handleListIngest)
 
 	log.Println("shipment-ingestion listening on :8090")
 	if err := http.ListenAndServe(":8090", mux); err != nil {
