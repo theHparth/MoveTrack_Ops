@@ -7,9 +7,9 @@ pipeline {
                 checkout scm
             }
         }
-        stage('Hello') {
+        stage('Build') {
             steps {
-                sh 'echo Jenkins can run a pipeline from this repo'
+                sh 'docker build -t shipment-ingestion services/shipment-ingestion'
             }
         }
     }
