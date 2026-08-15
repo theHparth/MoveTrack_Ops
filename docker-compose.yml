@@ -65,6 +65,15 @@ services:
     depends_on:
       - postgres
 
+  jenkins:
+    build: ./infra/jenkins
+    user: root
+    ports:
+      - "8080:8080"
+    volumes:
+      - jenkins_home:/var/jenkins_home
+      - /var/run/docker.sock:/var/run/docker.sock
+
 volumes:
   postgres_data:
-
+  jenkins_home:
