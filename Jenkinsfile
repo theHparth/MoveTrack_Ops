@@ -19,12 +19,8 @@ pipeline {
         }
         stage('ZAP Baseline Scan') {
             steps {
-                sh 'docker run --rm --network movetrack_ops_default -t zaproxy/zap-stable zap-baseline.py -t http://dashboard:80 -r zap-report.html || true'
-            }
-        }
-        stage('Archive Reports') {
-            steps {
-                archiveArtifacts artifacts: '*-report.html', allowEmptyArchive: true
+                sh 'docker run --rm --network movetrack_ops_default -v movetrack_ops_jenkins_home:/zap/wrk/:rw -t zaproxy/zap-stable zap-baseline.py -t http://dashboard:80 -r zap-report.html || true'
+                sh 'cp /var/jenkins_home/zap-report.html "$WORKSPACE"/zap-report.html || true'
             }
         }
     }
