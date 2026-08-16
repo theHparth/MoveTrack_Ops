@@ -1,9 +1,11 @@
 package com.movetrackops.claims.service;
 
 import com.movetrackops.claims.config.ClaimsApprovalProperties;
+import com.movetrackops.claims.config.RabbitMQConfig;
 import com.movetrackops.claims.entity.Claim;
 import com.movetrackops.claims.entity.ClaimStatus;
 import com.movetrackops.claims.repository.ClaimRepository;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -11,15 +13,21 @@ public class ClaimApprovalService {
 
     private final ClaimRepository claimRepository;
     private final ClaimsApprovalProperties approvalProperties;
+    private final RabbitTemplate rabbitTemplate;
 
-    public ClaimApprovalService(ClaimRepository claimRepository, ClaimsApprovalProperties approvalProperties) {
+    public ClaimApprovalService(ClaimRepository claimRepository,
+                                 ClaimsApprovalProperties approvalProperties,
+                                 RabbitTemplate rabbitTemplate) {
         this.claimRepository = claimRepository;
         this.approvalProperties = approvalProperties;
+        this.rabbitTemplate = rabbitTemplate;
     }
 
     public Claim submitForAdjusterReview(Claim claim) {
         claim.setStatus(ClaimStatus.ADJUSTER_REVIEW);
-        return claimRepository.save(claim);
+        Claim saved = claimRepository.save(claim);
+        rabbitTemplate.convertAndSend(RabbitMQConfig.EXCHANGE, "claim.filed", saved);
+        return saved;
     }
 
     public Claim recordAdjusterDecision(Long claimId, boolean approved) {

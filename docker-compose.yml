@@ -74,6 +74,34 @@ services:
       - jenkins_home:/var/jenkins_home
       - /var/run/docker.sock:/var/run/docker.sock
 
+  mongodb:
+    image: mongo:7
+    container_name: movetrack-mongodb
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: movetrack-rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+
+  compliance-service:
+    build: ./services/compliance-service
+    container_name: movetrack-compliance-service
+    ports:
+      - "8010:8010"
+    environment:
+      MONGO_URI: mongodb://mongodb:27017
+      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672/
+    depends_on:
+      - mongodb
+      - rabbitmq
+
 volumes:
   postgres_data:
   jenkins_home:
+  mongo_data:
