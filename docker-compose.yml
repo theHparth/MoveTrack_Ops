@@ -89,6 +89,17 @@ services:
       - "5672:5672"
       - "15672:15672"
 
+  compliance-service:
+    build: ./services/compliance-service
+    container_name: movetrack-compliance-service
+    ports:
+      - "8010:8010"
+    environment:
+      MONGO_URI: mongodb://mongodb:27017
+      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672/
+    depends_on:
+      - mongodb
+      - rabbitmq
 
 volumes:
   postgres_data:
