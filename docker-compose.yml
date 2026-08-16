@@ -140,6 +140,16 @@ services:
     depends_on:
       - kafka
 
+  ws-live-feed:
+    build: ./services/ws-live-feed
+    container_name: movetrack-ws-live-feed
+    ports:
+      - "8095:8095"
+    environment:
+      KAFKA_BROKER: kafka:29092
+    depends_on:
+      - kafka
+      
 volumes:
   postgres_data:
   jenkins_home:
