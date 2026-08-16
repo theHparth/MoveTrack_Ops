@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 
 import java.math.BigDecimal;
 import java.util.Optional;
@@ -24,13 +25,16 @@ class ClaimApprovalServiceTest {
     @Mock
     private ClaimRepository claimRepository;
 
+    @Mock
+    private RabbitTemplate rabbitTemplate;
+
     private ClaimApprovalService approvalService;
 
     @BeforeEach
     void setUp() {
         ClaimsApprovalProperties properties = new ClaimsApprovalProperties();
         properties.setSupervisorThreshold(new BigDecimal("1000.00"));
-        approvalService = new ClaimApprovalService(claimRepository, properties);
+        approvalService = new ClaimApprovalService(claimRepository, properties, rabbitTemplate);
     }
 
         private Claim claimWith(Long id, ClaimStatus status, String amount) {
