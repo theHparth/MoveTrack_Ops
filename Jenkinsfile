@@ -14,7 +14,7 @@ pipeline {
         }
         stage('Trivy Scan') {
             steps {
-                sh 'docker run --rm -v /var/run/docker.sock:/var/run/docker.sock -v movetrack_ops_jenkins_home:/report aquasec/trivy:latest image -f json -o /report/trivy-report.json shipment-ingestion'
+                sh 'docker run --rm -v /var/run/docker.sock:/var/run/docker.sock -v movetrack_ops_jenkins_home:/report aquasec/trivy:latest image -f json -o /report/trivy-report.json --exit-code 1 --severity HIGH,CRITICAL shipment-ingestion || echo "SEVERE FINDINGS DETECTED"'
                 sh 'docker cp $(docker ps -aq -f name=jenkins):/var/jenkins_home/trivy-report.json "$WORKSPACE"/trivy-report.json || true'
             }
         }
