@@ -74,6 +74,15 @@ services:
       - jenkins_home:/var/jenkins_home
       - /var/run/docker.sock:/var/run/docker.sock
 
+  mongodb:
+    image: mongo:7
+    container_name: movetrack-mongodb
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+
 volumes:
   postgres_data:
   jenkins_home:
+  mongo_data:
