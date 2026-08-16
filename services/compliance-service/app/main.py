@@ -24,3 +24,12 @@ def create_finding(finding: Finding):
     if should_publish(doc["severity"]):
         publish_finding_detected(doc)
     return {"id": str(result.inserted_id)}
+
+@app.get("/findings")
+def list_findings():
+    db = db_module.get_db()
+    docs = []
+    for doc in db.findings.find():
+        doc["_id"] = str(doc["_id"])
+        docs.append(doc)
+    return docs
