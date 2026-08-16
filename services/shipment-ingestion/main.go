@@ -46,6 +46,13 @@ func handleIngest(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	pingJSON, err := json.Marshal(p)
+	if err != nil {
+		log.Printf("failed to marshal ping for kafka: %v", err)
+	} else if err := publishPing(pingJSON, p.DeviceID); err != nil {
+		log.Printf("failed to publish ping to kafka: %v", err)
+	}
+
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(p)
