@@ -1,10 +1,7 @@
 const { Kafka } = require("kafkajs");
 const { broadcast } = require("./server");
 
-const kafka = new Kafka({
-  clientId: "ws-live-feed",
-  brokers: ["localhost:9092"],
-});
+const kafka = new Kafka({ clientId: "ws-live-feed", brokers: ["kafka:29092"] });
 const consumer = kafka.consumer({ groupId: "ws-live-feed" });
 
 async function start() {
