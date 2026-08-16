@@ -12,9 +12,13 @@ var kafkaWriter = &kafka.Writer{
 	Balancer: &kafka.Hash{},
 }
 
-func publishPing(pingJSON []byte, shipmentID string) error {
-	return kafkaWriter.WriteMessages(context.Background(), kafka.Message{
-		Key:   []byte(shipmentID),
+func buildKafkaMessage(pingJSON []byte, deviceID string) kafka.Message {
+	return kafka.Message{
+		Key:   []byte(deviceID),
 		Value: pingJSON,
-	})
+	}
+}
+
+func publishPing(pingJSON []byte, deviceID string) error {
+	return kafkaWriter.WriteMessages(context.Background(), buildKafkaMessage(pingJSON, deviceID))
 }
