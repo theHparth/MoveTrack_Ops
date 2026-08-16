@@ -7,7 +7,7 @@ import (
 )
 
 var kafkaWriter = &kafka.Writer{
-	Addr:     kafka.TCP("kafka:9092"),
+	Addr:     kafka.TCP("kafka:29092"),
 	Topic:    "shipment.tracking",
 	Balancer: &kafka.Hash{},
 }
