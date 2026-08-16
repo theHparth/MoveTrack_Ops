@@ -20,7 +20,7 @@ pipeline {
         }
         stage('Report Findings') {
             steps {
-                sh 'pip install requests --quiet --break-system-packages || pip install requests --quiet'
+                sh 'pip3 install requests --quiet --break-system-packages || pip3 install requests --quiet'
                 sh 'python3 scripts/report_findings.py || true'
             }
         }
