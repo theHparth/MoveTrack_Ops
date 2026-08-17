@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:tns="http://movetrack.com/soap/moverequest"
+           targetNamespace="http://movetrack.com/soap/moverequest"
+           elementFormDefault="qualified">
+
+    <xs:element name="submitMoveRequest">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="serviceMemberName" type="xs:string"/>
+                <xs:element name="rank" type="xs:string"/>
+                <xs:element name="originBase" type="xs:string"/>
+                <xs:element name="destinationBase" type="xs:string"/>
+                <xs:element name="moveDate" type="xs:date"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="submitMoveRequestResponse">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="id" type="xs:long"/>
+                <xs:element name="entitlementLbs" type="xs:int"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+</xs:schema>
