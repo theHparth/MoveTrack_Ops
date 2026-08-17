@@ -149,7 +149,15 @@ services:
       KAFKA_BROKER: kafka:29092
     depends_on:
       - kafka
-      
+
+  soap-legacy-adapter:
+    build: ./services/soap-legacy-adapter
+    container_name: movetrack-soap-legacy-adapter
+    ports:
+      - "8083:8083"
+    depends_on:
+      - move-entitlement-service
+
 volumes:
   postgres_data:
   jenkins_home:
