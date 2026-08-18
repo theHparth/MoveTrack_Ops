@@ -9,4 +9,6 @@ FROM alpine:3.24.1
 WORKDIR /app
 COPY --from=build /app/shipment-ingestion .
 EXPOSE 8090
+EXPOSE 8091/udp
+EXPOSE 8092
 CMD ["./shipment-ingestion"]

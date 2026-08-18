@@ -1,0 +1,8 @@
+[Interface]
+PrivateKey = ${WG_SERVER_PRIVATE_KEY}
+Address = 10.13.13.1/24
+ListenPort = 51820
+
+[Peer]
+PublicKey = ${WG_DEVICE_PUBLIC_KEY}
+AllowedIPs = 10.13.13.2/32

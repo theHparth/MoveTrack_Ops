@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 )
 
 
@@ -23,6 +24,10 @@ type ShipmentPing struct {
 	Latitude  float64 `json:"latitude"`
 	Longitude float64 `json:"longitude"`
 	Timestamp string  `json:"timestamp"`
+	// RequestID is optional — REST callers can omit it. UDP retries reuse
+	// the same RequestID across attempts so the server can dedup, since a
+	// dropped ack (not a dropped ping) is what triggers a client retry.
+	RequestID string `json:"request_id,omitempty"`
 }
 
 
@@ -36,21 +41,14 @@ func handleIngest(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := validatePing(p); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+	if err := handlePing(p); err != nil {
+		var verr *ValidationError
+		if errors.As(err, &verr) {
+			http.Error(w, verr.Error(), http.StatusBadRequest)
+		} else {
+			http.Error(w, "failed to save ping", http.StatusInternalServerError)
+		}
 		return
-	}
-
-	if err := insertPing(db, p); err != nil {
-		http.Error(w, "failed to save ping", http.StatusInternalServerError)
-		return
-	}
-
-	pingJSON, err := json.Marshal(p)
-	if err != nil {
-		log.Printf("failed to marshal ping for kafka: %v", err)
-	} else if err := publishPing(pingJSON, p.DeviceID); err != nil {
-		log.Printf("failed to publish ping to kafka: %v", err)
 	}
 
 	w.Header().Set("Content-Type", "application/json")
@@ -69,10 +67,24 @@ func handleListIngest(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(result)
 }
 
+func envOrDefault(key, fallback string) string {
+	if v := os.Getenv(key); v != "" {
+		return v
+	}
+	return fallback
+}
+
 func main() {
 	db = connectDB()
 	defer db.Close()
 	ensureSchema(db)
+
+	if envOrDefault("UDP_LISTENER_ENABLED", "true") == "true" {
+		go startUDPListener(envOrDefault("UDP_PORT", "8091"))
+	}
+	if envOrDefault("TCP_LISTENER_ENABLED", "true") == "true" {
+		go startTCPListener(envOrDefault("TCP_PORT", "8092"))
+	}
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /health", func(w http.ResponseWriter, r *http.Request) {
