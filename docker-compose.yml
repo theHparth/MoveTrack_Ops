@@ -56,14 +56,36 @@ services:
     depends_on:
       - redis
 
+  wireguard:
+    build: ./infra/wireguard
+    container_name: movetrack-wireguard
+    cap_add:
+      - NET_ADMIN
+    environment:
+      WG_SERVER_PRIVATE_KEY: ${WG_SERVER_PRIVATE_KEY}
+      WG_DEVICE_PUBLIC_KEY: ${WG_DEVICE_PUBLIC_KEY}
+    sysctls:
+      - net.ipv4.conf.all.src_valid_mark=1
+    ports:
+      - "51820:51820/udp"
+      - "8090:8090"
+      - "8091:8091/udp"
+      - "8092:8092"
+    depends_on:
+      - postgres
+
   shipment-ingestion:
     build: ./services/shipment-ingestion
-    ports:
-      - "8090:8090"
+    # Shares wireguard's network namespace so its raw UDP/TCP listeners bind
+    # inside the tunnel interface, not the regular Docker bridge network.
+    # Ports can't be declared here when using network_mode: service:X —
+    # they're published on the wireguard service above instead.
+    network_mode: "service:wireguard"
     environment:
       DATABASE_URL: postgres://movetrack:localdevpassword@postgres:5432/shipment_ingestion?sslmode=disable
     depends_on:
       - postgres
+      - wireguard
 
   jenkins:
     build: ./infra/jenkins
